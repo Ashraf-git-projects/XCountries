@@ -9,8 +9,9 @@ function App() {
   useEffect(() => {
     const fetchCountries = async () => {
       try {
-        const response = await fetch("https://xcountries-backend.azurewebsites.net/all");
+        const response = await fetch("https://countries-search-data-prod-812920491762.asia-south1.run.app/countries");
         const data = await response.json();
+        console.log("Fetched countries:", data); // Optional debug
         setCountries(data);
       } catch (error) {
         console.error("Error fetching data:", error);
@@ -22,21 +23,21 @@ function App() {
 
   // Filter countries based on search
   const filteredCountries = countries.filter((country) =>
-    country.name?.toLowerCase().includes(searchTerm.toLowerCase())
+    country.common.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  // ✅ Remove duplicate countries using name-abbr-flag combo
+  // Deduplicate based on name and flag URL
   const deduplicatedCountries = filteredCountries.filter((country, index, self) => {
-    const uniqueKey = `${country.name}-${country.abbr}-${country.flag}`;
+    const uniqueKey = `${country.common}-${country.png}`;
     return index === self.findIndex(c =>
-      `${c.name}-${c.abbr}-${c.flag}` === uniqueKey
+      `${c.common}-${c.png}` === uniqueKey
     );
   });
 
   return (
     <div className="app-container">
       <h1>XCountries</h1>
-      
+
       <input
         type="text"
         placeholder="Search for countries..."
@@ -49,9 +50,9 @@ function App() {
         <div className="grid-container">
           {deduplicatedCountries.map((country) => (
             <CountryCard
-              key={`${country.name}-${country.abbr}-${country.flag}`}
-              name={country.name}
-              flag={country.flag}
+              key={`${country.common}-${country.png}`}
+              name={country.common}
+              flag={country.png}
             />
           ))}
         </div>
